@@ -16,6 +16,7 @@ The primary challenge in resistance training and muscle hypertrophy is sustainin
 * **Temporal Analytics & Progression Insights**: Time-series evaluation of strength curves, estimated 1-Rep Max (1RM) trends, and weekly muscle volume distribution.
 * **Movement & Technique Library**: Comprehensive catalog of resistance movements categorized by target muscle groups, complete with form cues and video demonstrations.
 * **User Isolation & Security**: Authentication and authorization layer ensuring private session logging, personalized routines, and isolated historical metrics.
+* **In-Session Historical Benchmarking**: Instant recall of previous session metrics (weight, sets, reps) for any chosen exercise, giving the user their exact historical target to beat in the current workout.
 
 ---
 
@@ -53,18 +54,44 @@ The platform's business logic is modeled in Java, enforcing strict domain bounda
 * **`Workout`**: A concrete training session bound to a temporal record (`LocalDate`), aggregating total session tonnage and serving as the historical baseline for progression queries.
 * **`Exercise`**: A distinct movement instance referencing the global exercise catalog, holding an ordered list of sets.
 * **`WorkoutSet`**: The atomic execution unit tracking load ($weight$) and repetitions ($reps$), calculating set tonnage:
-  $$\text{Volume} = \text{weight} \times \text{reps}$$
+$$
+\text{Volume} = \text{weight} \times \text{reps}
+$$
 
 ---
 
 ## 📡 MVP API Specification (Target Endpoints)
 
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `POST` | `/api/v1/workouts` | Log a completed workout session with exercises and sets. |
-| `GET` | `/api/v1/workouts/history` | Retrieve chronological training sessions within a date range. |
-| `GET` | `/api/v1/analytics/progression/{exerciseId}` | Evaluate overload metrics, 1RM progression, and volume delta. |
-| `GET` | `/api/v1/exercises` | List exercise catalog filtered by target muscle group. |
+| Method | Endpoint                                             | Description |
+| :--- |:-----------------------------------------------------| :--- |
+| `POST` | `/api/v1/workouts`                                   | Log a completed workout session with exercises and sets. |
+| `GET` | `/api/v1/workouts/history`                           | Retrieve chronological training sessions within a date range. |
+| `GET` | `/api/v1/workouts/previous-performance/{exerciseId}` | Fetch most recent performance metrics for a specific exercise baseline. |
+| `GET` | `/api/v1/analytics/progression/{exerciseId}`         | Evaluate overload metrics, 1RM progression, and volume delta. |
+| `GET` | `/api/v1/exercises`                                  | List exercise catalog filtered by target muscle group. |
+
+---
+
+## 📐 Domain Metrics & Progression Calculations
+
+To maintain analytical consistency, all performance formulas are formally defined and enforced in domain services:
+
+* **Session & Set Volume**:
+$$
+\text{Set Volume} = \text{weight} \times \text{reps}
+$$
+* **Estimated 1-Rep Max (Epley Formula)**:
+$$
+\text{e1RM} = \text{weight} \times \left(1 + \frac{\text{reps}}{30}\right) \quad (\text{for } 1 < \text{reps} \le 30)
+$$
+* **Progressive Overload Trigger Logic**:
+  A session achieves progressive overload over its baseline if:
+    1. $\Delta \text{Load} > 0$ with identical or higher repetitions.
+    2. $\Delta \text{Reps} > 0$ at equivalent load.
+    3. $\Delta \text{Volume} > 0$ across matching exercise movements.
+* **Measurement Standards**:
+    * Default weight metric: Pounds (`lbs`) represented as floating decimals (`DECIMAL(5,2)`).
+    * Bodyweight movements benchmarked with `weight = 0.0` or positive added resistance.
 
 ---
 
@@ -105,7 +132,7 @@ The platform's business logic is modeled in Java, enforcing strict domain bounda
 
 1. Clone the repository:
    ```bash
-   git clone [https://github.com/alexanderfarraro/LiftTrace.git](https://github.com/alexanderfarraro/LiftTrace.git)
+   git clone https://github.com/DerekFarraro/LiftTrace.git
    cd LiftTrace
    ```
 
