@@ -53,10 +53,7 @@ The platform's business logic is modeled in Java, enforcing strict domain bounda
 * **`User`**: Account owner holding personal records, custom routines, and historic training logs.
 * **`Workout`**: A concrete training session bound to a temporal record (`LocalDate`), aggregating total session tonnage and serving as the historical baseline for progression queries.
 * **`Exercise`**: A distinct movement instance referencing the global exercise catalog, holding an ordered list of sets.
-* **`WorkoutSet`**: The atomic execution unit tracking load ($weight$) and repetitions ($reps$), calculating set tonnage:
-$$
-\text{Volume} = \text{weight} \times \text{reps}
-$$
+* **`WorkoutSet`**: The atomic execution unit tracking load (*weight*) and repetitions (*reps*), calculating set tonnage: $\text{Volume} = \text{weight} \times \text{reps}$.
 
 ---
 
@@ -76,19 +73,12 @@ $$
 
 To maintain analytical consistency, all performance formulas are formally defined and enforced in domain services:
 
-* **Session & Set Volume**:
-$$
-\text{Set Volume} = \text{weight} \times \text{reps}
-$$
-* **Estimated 1-Rep Max (Epley Formula)**:
-$$
-\text{e1RM} = \text{weight} \times \left(1 + \frac{\text{reps}}{30}\right) \quad (\text{for } 1 < \text{reps} \le 30)
-$$
-* **Progressive Overload Trigger Logic**:
-  A session achieves progressive overload over its baseline if:
-    1. $\Delta \text{Load} > 0$ with identical or higher repetitions.
-    2. $\Delta \text{Reps} > 0$ at equivalent load.
-    3. $\Delta \text{Volume} > 0$ across matching exercise movements.
+* **Session & Set Volume**: $\text{Set Volume} = \text{weight} \times \text{reps}$
+* **Estimated 1-Rep Max (Epley Formula)**: $\text{e1RM} = \text{weight} \times \left(1 + \frac{\text{reps}}{30}\right) \quad (\text{for } 1 < \text{reps} \le 30)$
+* **Progressive Overload Trigger Logic**: A session achieves progressive overload over its baseline if:
+    1. $\Delta\text{Load} > 0$ with identical or higher repetitions.
+    2. $\Delta\text{Reps} > 0$ at equivalent load.
+    3. $\Delta\text{Volume} > 0$ across matching exercise movements.
 * **Measurement Standards**:
     * Default weight metric: Pounds (`lbs`) represented as floating decimals (`DECIMAL(5,2)`).
     * Bodyweight movements benchmarked with `weight = 0.0` or positive added resistance.
