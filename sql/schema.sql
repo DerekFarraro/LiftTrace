@@ -16,7 +16,7 @@ CREATE TABLE users
     created_at      TIMESTAMP             DEFAULT CURRENT_TIMESTAMP,
     updated_at      TIMESTAMP             DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT chk_user_contact CHECK (email IS NOT NULL OR phone_number IS NOT NULL)
-)
+);
 
 -- 2. Exercise Catalog (Movement Library)
 CREATE TABLE exercise_catalog
@@ -29,7 +29,7 @@ CREATE TABLE exercise_catalog
     video_url         VARCHAR(500),
     created_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX             idx_primary_muscle (primary_muscle)
-)
+);
 
 -- 3. Workouts (Training Sessions)
 CREATE TABLE workouts
@@ -43,7 +43,7 @@ CREATE TABLE workouts
     created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_workouts_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     INDEX        idx_user_workout_date (user_id, workout_date DESC)
-)
+);
 -- 4. Workout Exercises (Bridging Table: Session <-> Movement)
 CREATE TABLE workout_exercises
 (
@@ -55,7 +55,7 @@ CREATE TABLE workout_exercises
     CONSTRAINT fk_we_workout FOREIGN KEY (workout_id) REFERENCES workouts (id) ON DELETE CASCADE,
     CONSTRAINT fk_we_exercise FOREIGN KEY (exercise_id) REFERENCES exercise_catalog (id) ON DELETE RESTRICT,
     INDEX            idx_workout_order (workout_id, order_in_workout ASC)
-)
+);
 
 -- 5. Workout Sets (Atomic Performance Records)
 CREATE TABLE workout_sets
